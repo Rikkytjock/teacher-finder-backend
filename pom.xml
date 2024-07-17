@@ -30,6 +30,13 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-jwt</artifactId>
+            <version>3.12.2</version>
+        </dependency>
+
          <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-openapi</artifactId>
