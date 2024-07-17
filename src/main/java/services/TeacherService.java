@@ -3,7 +3,6 @@ package services;
 import org.bson.Document;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,11 +19,10 @@ public class TeacherService {
     @Inject
     MongoDBService mongoDBService;
 
-    public Response findteacher() {
+    public Response findTeacher() {
         
-        Document query = new Document("name", "Rikard Mohlin");
-        Document teacherDocument = mongoDBService.getTeacherCollection().find(query).first();
-        return Response.ok(teacherDocument).build();
+        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("name", "Rikard Mohlin")).first();
+        return teacherDocument != null ? Response.ok(teacherDocument).build() : Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
     }
     
 }

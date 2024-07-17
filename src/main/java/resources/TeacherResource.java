@@ -28,8 +28,8 @@ public class TeacherResource {
     @APIResponse(responseCode = "404", description = "The teacher was not found")
     @APIResponse(responseCode = "200", description = "Teacher details returned successfully.")
     @Path("/find-teacher")
-    public Response findteacher() {
-        return teacherService.findteacher();
+    public Response findTeacher() {
+        return teacherService.findTeacher();
     }
 }
 
