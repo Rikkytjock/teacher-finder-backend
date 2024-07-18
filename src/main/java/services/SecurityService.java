@@ -19,11 +19,11 @@ public class SecurityService {
     AppConfig appConfig;
 
     public Response userLogin(@Valid LoginDto loginDto) {
-        String jwt = jwt(loginDto);
+        String jwt = getJwt(loginDto);
         return Response.ok(jwt).build();
     }
 
-    private String jwt(@Valid LoginDto loginDto) {
+    private String getJwt(@Valid LoginDto loginDto) {
 
         Set<String> roles = new HashSet<> (
             Arrays.asList("teacher")
@@ -34,6 +34,5 @@ public class SecurityService {
             .groups(roles)
             .expiresAt(System.currentTimeMillis() + 86400)
             .sign();        
-    }
-    
+    }    
 }
