@@ -1,8 +1,6 @@
 package services;
 
-import java.util.List;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.mongodb.MongoWriteException;
@@ -41,17 +39,8 @@ public class TeacherService {
 
         Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", email)).first();
         if (teacherDocument != null) {
+            teacherDocument.remove("password");
             teacherDocument.put("_id", teacherDocument.get("_id").toString());
-            @SuppressWarnings("unchecked")
-            List<Document> announcements = (List<Document>) teacherDocument.get("announcements");
-            if (announcements != null) {
-                for (Document announcement : announcements) {
-                    ObjectId announcementId = announcement.getObjectId("_id");
-                    announcement.put("_id", announcementId != null ? announcementId.toHexString() : null);
-                    ObjectId teacherDocumentId = announcement.getObjectId("teacherDocumentId");
-                    announcement.put("teacherDocumentId", teacherDocumentId != null ? teacherDocumentId.toHexString() : null);
-                }
-            }
             return Response.ok(teacherDocument).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
@@ -91,6 +80,7 @@ public class TeacherService {
             .append("websiteUrl", teacher.getWebsiteUrl())
             .append("profilePictureUrl", teacher.getProfilePictureUrl())
             .append("socialMediaUrls", teacher.getSocialMediaUrls())
+            .append("programs", teacher.getPrograms())
             .append("role", "teacher");
     }
 

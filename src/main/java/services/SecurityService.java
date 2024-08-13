@@ -68,7 +68,6 @@ public class SecurityService {
             String subject = jwt.getSubject();
             Long expirationTime = jwt.getExpirationTime();
             Set<String> roles = jwt.getGroups();
-
             Instant expirationInstant = Instant.ofEpochSecond(expirationTime);
             if (expirationInstant.isBefore(Instant.now())) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Token is expired").build();

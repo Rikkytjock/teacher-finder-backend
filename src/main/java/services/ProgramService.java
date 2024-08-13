@@ -3,13 +3,14 @@ package services;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
+import models.Program;
 
 @Transactional(Transactional.TxType.SUPPORTS)
 @ApplicationScoped
-public class TestService {
+public class ProgramService {
 
-    public Response testGet() {
-        return Response.ok().entity("Server running!").build();
+    public Response submitProgram(String token, Program program) {
+        return null;
     }
     
 }

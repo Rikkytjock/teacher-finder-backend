@@ -23,12 +23,13 @@ public class Teacher {
     private String websiteUrl;
     private String profilePictureUrl;
     private List<String> socialMediaUrls;
+    private List<Program> programs;
 
     public Teacher() {};
 
     public Teacher(String id, @Email String email, String password, String firstName, String lastName,
             List<String> teachingLanguages, String mobileNumber, String whatsAppNumber, String country, String city,
-            String teachingLocationAddress, String websiteUrl, String profilePictureUrl, List<String> socialMediaUrls) {
+            String teachingLocationAddress, String websiteUrl, String profilePictureUrl, List<String> socialMediaUrls, List<Program> programs) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -43,6 +44,7 @@ public class Teacher {
         this.websiteUrl = websiteUrl;
         this.profilePictureUrl = profilePictureUrl;
         this.socialMediaUrls = socialMediaUrls;
+        this.programs = programs;
     }
 
     public String getFirstName() {
@@ -182,5 +184,13 @@ public class Teacher {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Program> getPrograms() {
+        return programs;
+    }
+
+    public void setPrograms(List<Program> programs) {
+        this.programs = programs;
     }
 }
