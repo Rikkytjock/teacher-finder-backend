@@ -3,8 +3,9 @@ package services;
 import java.time.Instant;
 import java.util.Set;
 
+import org.bson.Document;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.jose4j.jwt.JwtClaims;
+import org.mindrot.jbcrypt.BCrypt;
 
 import config.AppConfig;
 import io.smallrye.jwt.auth.principal.JWTParser;
@@ -25,9 +26,23 @@ public class SecurityService {
 
     @Inject JWTParser jwtParser;
 
+    @Inject MongoDBService mongoDBService;
+
     public Response userLogin(@Valid LoginDto loginDto) {
-        String jwt = getJwt(loginDto);
-        return Response.ok(jwt).build();
+
+        boolean checkPassword = checkPassword(loginDto);
+
+        if (checkPassword == true) {
+            String jwt = getJwt(loginDto);
+            return Response.ok(jwt).build();
+        } else {
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect email or password. Please try again.").build();
+        }
+    }
+
+    private boolean checkPassword(@Valid LoginDto loginDto) {
+        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", loginDto.getEmail())).first();
+        return teacherDocument != null && BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString());
     }
 
     private String getJwt(@Valid LoginDto loginDto) {
@@ -46,7 +61,7 @@ public class SecurityService {
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            
+
             JsonWebToken jwt = jwtParser.parse(token);
 
             String issuer = jwt.getIssuer();
