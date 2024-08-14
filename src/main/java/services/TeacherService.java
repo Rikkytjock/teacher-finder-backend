@@ -81,7 +81,8 @@ public class TeacherService {
             .append("profilePictureUrl", teacher.getProfilePictureUrl())
             .append("socialMediaUrls", teacher.getSocialMediaUrls())
             .append("programs", teacher.getPrograms())
-            .append("role", "teacher");
+            .append("role", "teacher")
+            .append("accountVerified", false);
     }
 
     

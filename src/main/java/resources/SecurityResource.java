@@ -35,9 +35,10 @@ public class SecurityResource {
     
     @POST
     @Operation(summary = "User Login", description = "Both admin and teachers log in here.")
-    @APIResponse(responseCode = "403", description = "The user does not have permission to use the application.")
+    @APIResponse(responseCode = "403", description = "The teachers account has not yet been verified.")
     @APIResponse(responseCode = "401", description = "The user has entered bad credentials.")
     @APIResponse(responseCode = "200", description = "The user has successfully logged in and received their Json Web Token.")
+    @APIResponse(responseCode = "404", description = "The teacher was not found")
     @Path("/login")
     @PermitAll
     public Response userLogin(@Valid @RequestBody final LoginDto loginDto) {

@@ -30,19 +30,32 @@ public class SecurityService {
 
     public Response userLogin(@Valid LoginDto loginDto) {
 
-        boolean checkPassword = checkPassword(loginDto);
+        int checkPasswordAndAccountVerification = checkPassword(loginDto);
 
-        if (checkPassword == true) {
+        if (checkPasswordAndAccountVerification == 0) {
             String jwt = getJwt(loginDto);
             return Response.ok(jwt).build();
-        } else {
+        } else if (checkPasswordAndAccountVerification == 1) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect email or password. Please try again.").build();
+        } else if (checkPasswordAndAccountVerification == 2) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Your account has not yet been verified. If you created your account more than 48 hours ago please contact support.").build();
+        } else {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Something went wrong. Please try again.").build();
         }
     }
 
-    private boolean checkPassword(@Valid LoginDto loginDto) {
+    private int checkPassword(@Valid LoginDto loginDto) {
         Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", loginDto.getEmail())).first();
-        return teacherDocument != null && BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString());
+        if (teacherDocument == null || !BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString())) {
+            return 1;
+        } else if (teacherDocument.getBoolean("accountVerified") == false) {
+            return 2;
+        } else if (teacherDocument != null && BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString())) {
+            return 0;
+        } else {
+            return -1;
+        }
+         
     }
 
     private String getJwt(@Valid LoginDto loginDto) {

@@ -1,36 +1,56 @@
 package models;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.List;
+import java.util.UUID;
 
 public class Program {
     
+    private String programId;
+    private String programName;
     private String address;
     private String city;
     private String postalCode;
     private String country;
-    private LocalDate date;
-    private LocalTime start;
-    private LocalTime finish;
+    private LocalDate startDate;
+    private List<Session> sessions;
     private String description;
     private String registrationUrl;
     private String imageUrl;
 
-    public Program() {}
+    public Program() {
+        this.programId = UUID.randomUUID().toString(); 
+    }
 
-    public Program(String city, String address, String postalCode, String country, LocalDate date,
-            LocalTime start, LocalTime finish, String description, String registrationUrl, String imageUrl) {
-        
+    public Program(String programName, String city, String address, String postalCode, String country, LocalDate startDate,
+                   List<Session> sessions, String description, String registrationUrl, String imageUrl) {
+        this.programId = UUID.randomUUID().toString();  
+        this.programName = programName;
         this.city = city;
         this.address = address;
         this.postalCode = postalCode;
         this.country = country;
-        this.date = date;
-        this.start = start;
-        this.finish = finish;
+        this.startDate = startDate;
+        this.sessions = sessions;
         this.description = description;
         this.registrationUrl = registrationUrl;
         this.imageUrl = imageUrl;
+    }
+
+    public String getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(String programId) {
+        this.programId = programId;
+    }
+
+    public String getProgramName() {
+        return programName;
+    }
+
+    public void setProgramName(String programName) {
+        this.programName = programName;
     }
 
     public String getAddress() {
@@ -39,6 +59,14 @@ public class Program {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getPostalCode() {
@@ -57,44 +85,20 @@ public class Program {
         this.country = country;
     }
 
-    public String getRegistrationUrl() {
-        return registrationUrl;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setRegistrationUrl(String registrationUrl) {
-        this.registrationUrl = registrationUrl;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public String getCity() {
-        return city;
+    public List<Session> getSessions() {
+        return sessions;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getStart() {
-        return start;
-    }
-
-    public void setStart(LocalTime start) {
-        this.start = start;
-    }
-
-    public LocalTime getFinish() {
-        return finish;
-    }
-
-    public void setFinish(LocalTime finish) {
-        this.finish = finish;
+    public void setSessions(List<Session> sessions) {
+        this.sessions = sessions;
     }
 
     public String getDescription() {
@@ -103,6 +107,14 @@ public class Program {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getRegistrationUrl() {
+        return registrationUrl;
+    }
+
+    public void setRegistrationUrl(String registrationUrl) {
+        this.registrationUrl = registrationUrl;
     }
 
     public String getImageUrl() {
