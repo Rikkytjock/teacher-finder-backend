@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -46,6 +47,16 @@ public class TeacherResource {
     @Path("/create-account")
     public Response createAccount(@RequestBody Teacher teacher) {
         return teacherService.createAccount(teacher);
+    }
+
+    @PATCH
+    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account.")
+    @APIResponse(responseCode = "404", description = "Page not found.")
+    @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
+    @PermitAll
+    @Path("/edit-account")
+    public Response editAccount(@RequestBody Teacher teacher) {
+        return teacherService.editAccount(teacher);
     }
 
 }

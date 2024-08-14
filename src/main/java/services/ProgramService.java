@@ -66,5 +66,10 @@ public class ProgramService {
             return Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
         }
     }
+
+    public Response editProgram(String token, Program program) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'editProgram'");
+    }
     
 }

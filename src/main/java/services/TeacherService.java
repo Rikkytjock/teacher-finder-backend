@@ -85,6 +85,11 @@ public class TeacherService {
             .append("accountVerified", false);
     }
 
+    public Response editAccount(Teacher teacher) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'editAccount'");
+    }
+
     
 }
 
