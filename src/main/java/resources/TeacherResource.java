@@ -55,8 +55,8 @@ public class TeacherResource {
     @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
     @PermitAll
     @Path("/edit-account")
-    public Response editAccount(@RequestBody Teacher teacher) {
-        return teacherService.editAccount(teacher);
+    public Response editAccount(@HeaderParam("Authorization") String token, @RequestBody Teacher teacher) {
+        return teacherService.editAccount(token, teacher);
     }
 
 }
