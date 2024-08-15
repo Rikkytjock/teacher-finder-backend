@@ -27,7 +27,7 @@ public class Teacher {
     private List<Program> programs;
     private boolean accountVerified;
 
-    public Teacher() {};
+    public Teacher() {}
 
     public Teacher(String id, @Email String email, String password, String teacherId, String firstName, String lastName,
             List<String> teachingLanguages, String mobileNumber, String whatsAppNumber, String country, String city,
