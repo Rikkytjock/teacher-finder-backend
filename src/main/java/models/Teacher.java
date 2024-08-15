@@ -12,6 +12,7 @@ public class Teacher {
     @Email
     private String email;
     private String password;
+    private String teacherId;
     private String firstName;
     private String lastName;
     private List<String> teachingLanguages;
@@ -24,18 +25,19 @@ public class Teacher {
     private String profilePictureUrl;
     private List<String> socialMediaUrls;
     private List<Program> programs;
-    private boolean accountConfirmed;
+    private boolean accountVerified;
 
     public Teacher() {};
 
-    public Teacher(String id, @Email String email, String password, String firstName, String lastName,
+    public Teacher(String id, @Email String email, String password, String teacherId, String firstName, String lastName,
             List<String> teachingLanguages, String mobileNumber, String whatsAppNumber, String country, String city,
             String teachingLocationAddress, String websiteUrl, String profilePictureUrl, List<String> socialMediaUrls, List<Program> programs,
-            boolean accountConfirmed) {
+            boolean accountVerified) {
 
         this.id = id;
         this.email = email;
         this.password = password;
+        this.teacherId = teacherId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.teachingLanguages = teachingLanguages;
@@ -48,7 +50,7 @@ public class Teacher {
         this.profilePictureUrl = profilePictureUrl;
         this.socialMediaUrls = socialMediaUrls;
         this.programs = programs;
-        this.accountConfirmed = accountConfirmed;
+        this.accountVerified = accountVerified;
     }
     
     public String getFirstName() {
@@ -198,11 +200,19 @@ public class Teacher {
         this.programs = programs;
     }
 
-    public boolean isAccountConfirmed() {
-        return accountConfirmed;
+    public boolean isAccountVerified() {
+        return accountVerified;
     }
 
-    public void setAccountConfirmed(boolean accountConfirmed) {
-        this.accountConfirmed = accountConfirmed;
+    public void setAccountVerified(boolean accountConfirmed) {
+        this.accountVerified = accountConfirmed;
+    }
+
+    public String getTeacherId() {
+        return teacherId;
+    }
+
+    public void setTeacherId(String teacherId) {
+        this.teacherId = teacherId;
     }
 }

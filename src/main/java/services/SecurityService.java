@@ -1,5 +1,6 @@
 package services;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Response;
 import models.JwtResponse;
+import models.JwtValidationResult;
 import models.LoginDto;
 
 @Singleton
@@ -24,9 +26,11 @@ public class SecurityService {
     @Inject
     AppConfig appConfig;
 
-    @Inject JWTParser jwtParser;
+    @Inject 
+    JWTParser jwtParser;
 
-    @Inject MongoDBService mongoDBService;
+    @Inject 
+    MongoDBService mongoDBService;
 
     public Response userLogin(@Valid LoginDto loginDto) {
 
@@ -59,15 +63,35 @@ public class SecurityService {
     }
 
     private String getJwt(@Valid LoginDto loginDto) {
-
+        Instant expirationTime = Instant.now().plus(Duration.ofDays(1));
+    
         return Jwt.issuer(appConfig.jwtIssuer())
-            .subject(loginDto.getEmail())
-            .groups("teacher")
-            .expiresAt(Instant.now().getEpochSecond() + 86400)
-            .sign();        
-    }    
+                .subject(loginDto.getEmail())
+                .groups("teacher")
+                .expiresAt(expirationTime.getEpochSecond())
+                .sign();
+    }
+    
+    
+    public JwtValidationResult validateJwtAndGetTeacher(String token) {
 
-    public Response checkJwt(String token) {
+        Response validateJwt = checkJwt(token);
+        if (validateJwt.getStatus() != Response.Status.OK.getStatusCode()) {
+            return new JwtValidationResult(validateJwt, null); 
+        }
+
+        JwtResponse jwtResponse = (JwtResponse) validateJwt.getEntity();
+        String email = jwtResponse.getSubject();
+
+        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", email)).first();
+        if (teacherDocument == null) {
+            return new JwtValidationResult(Response.status(Response.Status.NOT_FOUND).entity("Teacher not found").build(), null);
+        }
+
+        return new JwtValidationResult(null, teacherDocument);
+    }
+
+    private Response checkJwt(String token) {
 
         try {
 
@@ -81,10 +105,12 @@ public class SecurityService {
             String subject = jwt.getSubject();
             Long expirationTime = jwt.getExpirationTime();
             Set<String> roles = jwt.getGroups();
+            
             Instant expirationInstant = Instant.ofEpochSecond(expirationTime);
-            if (expirationInstant.isBefore(Instant.now())) {
+            if (Instant.now().isAfter(expirationInstant)) { 
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Token is expired").build();
             }
+
 
             JwtResponse jwtResponse = new JwtResponse();
             jwtResponse.setIssuer(issuer);

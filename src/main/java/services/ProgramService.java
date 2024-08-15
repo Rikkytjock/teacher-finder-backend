@@ -10,7 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
-import models.JwtResponse;
+import models.JwtValidationResult;
 import models.Program;
 
 @Transactional(Transactional.TxType.SUPPORTS)
@@ -25,30 +25,18 @@ public class ProgramService {
 
     public Response submitProgram(String token, Program program) {
 
-        Response validateJwt = securityService.checkJwt(token);
-        if (validateJwt.getStatus() != Response.Status.OK.getStatusCode()) {
-            return validateJwt;
+        JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
+
+        if (result.hasError()) {
+            return result.getErrorResponse(); 
         }
 
-        JwtResponse jwtResponse = (JwtResponse) validateJwt.getEntity();
-        String email = jwtResponse.getSubject();
-
-        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", email)).first();
+        Document teacherDocument = result.getTeacherDocument();
         if (teacherDocument != null) {
             @SuppressWarnings("unchecked")
             List<Document> programsList = (List<Document>) teacherDocument.get("programs");
 
-            Document programDocument = new Document("name", program.getProgramName())
-                .append("programId", UUID.randomUUID().toString())
-                .append("address", program.getAddress())
-                .append("city", program.getCity())
-                .append("postalCode", program.getPostalCode())
-                .append("country", program.getCountry())
-                .append("startDate", program.getStartDate()) 
-                .append("sessions", program.getSessions()) 
-                .append("description", program.getDescription())
-                .append("registrationUrl", program.getRegistrationUrl())
-                .append("imageUrl", program.getImageUrl());
+            Document programDocument = toDocument(program);
 
             if (programsList == null) {
                 programsList = new ArrayList<>();
@@ -57,7 +45,7 @@ public class ProgramService {
             programsList.add(programDocument);
 
             mongoDBService.getTeacherCollection().updateOne(
-                new Document("email", email),
+                new Document("email", teacherDocument.get("email")),
                 new Document("$set", new Document("programs", programsList))
             );
 
@@ -65,6 +53,20 @@ public class ProgramService {
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
         }
+    }
+
+    private Document toDocument(Program program) {
+        return new Document("name", program.getProgramName())
+            .append("programId", UUID.randomUUID().toString())
+            .append("address", program.getAddress())
+            .append("city", program.getCity())
+            .append("postalCode", program.getPostalCode())
+            .append("country", program.getCountry())
+            .append("startDate", program.getStartDate()) 
+            .append("sessions", program.getSessions()) 
+            .append("description", program.getDescription())
+            .append("registrationUrl", program.getRegistrationUrl())
+            .append("imageUrl", program.getImageUrl());
     }
 
     public Response editProgram(String token, Program program) {

@@ -11,7 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
-import models.JwtResponse;
+import models.JwtValidationResult;
 import models.Teacher;
 
 @Transactional(Transactional.TxType.SUPPORTS)
@@ -29,15 +29,13 @@ public class TeacherService {
 
     public Response findTeacher(String token) {
 
-        Response validateJwt = securityService.checkJwt(token);
-        if (validateJwt.getStatus() != Response.Status.OK.getStatusCode()) {
-            return validateJwt;
+        JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
+
+        if (result.hasError()) {
+            return result.getErrorResponse(); 
         }
 
-        JwtResponse jwtResponse = (JwtResponse) validateJwt.getEntity();
-        String email = jwtResponse.getSubject();
-
-        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", email)).first();
+        Document teacherDocument = result.getTeacherDocument();
         if (teacherDocument != null) {
             teacherDocument.remove("password");
             teacherDocument.put("_id", teacherDocument.get("_id").toString());
@@ -56,7 +54,7 @@ public class TeacherService {
             Document teacherDocument = toDocument(teacher);
             MongoCollection<Document> teacherCollection = mongoDBService.getTeacherCollection();
             teacherCollection.insertOne(teacherDocument);
-            return Response.status(Response.Status.CREATED).entity("Teacher account created!").build();
+            return Response.status(Response.Status.CREATED).entity("Teacher account created! Please allow up to 48 hours for your teacher ID to be validated.").build();
         } catch (MongoWriteException e) {
         if (e.getCode() == 11000) {
             return Response.status(Response.Status.CONFLICT).entity("Email already exists.").build();
@@ -65,31 +63,82 @@ public class TeacherService {
         }
     }
 
-    private Document toDocument(Teacher teacher) {
-        return new Document()
-            .append("email", teacher.getEmail())
-            .append("password", teacher.getPassword())
-            .append("firstName", teacher.getFirstName())
-            .append("lastName", teacher.getLastName())
-            .append("teachingLanguages", teacher.getTeachingLanguages())
-            .append("mobileNumber", teacher.getMobileNumber())
-            .append("whatsAppNumber", teacher.getWhatsAppNumber())
-            .append("country", teacher.getCountry())
-            .append("city", teacher.getCity())
-            .append("teachingLocationAddress", teacher.getTeachingLocationAddress())
-            .append("websiteUrl", teacher.getWebsiteUrl())
-            .append("profilePictureUrl", teacher.getProfilePictureUrl())
-            .append("socialMediaUrls", teacher.getSocialMediaUrls())
-            .append("programs", teacher.getPrograms())
-            .append("role", "teacher")
-            .append("accountVerified", false);
-    }
-
     public Response editAccount(String token, Teacher teacher) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'editAccount'");
-    }
 
+        JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
+
+        if (result.hasError()) {
+            return result.getErrorResponse(); 
+        }
+
+        Document teacherDocument = result.getTeacherDocument();
+        if (teacherDocument != null) {
+            String currentEmail = teacherDocument.get("email").toString();
+            Document updatedTeacherDocument = toDocument(teacher);
+            updatedTeacherDocument.append("accountVerified", teacherDocument.get("accountVerified"));
+            MongoCollection<Document> teacherCollection = mongoDBService.getTeacherCollection();
+            teacherCollection.updateOne(
+            new Document("email", currentEmail),  
+            new Document("$set", updatedTeacherDocument));
+
+            return Response.ok().entity("Teacher account updated successfully").build();
+
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
+        }
+    }
+    
+    private Document toDocument(Teacher teacher) {
+        Document teacherDocument = new Document();
+
+        if (teacher.getEmail() != null) {
+            teacherDocument.append("email", teacher.getEmail());
+        }
+        if (teacher.getPassword() != null) {
+            teacherDocument.append("password", teacher.getPassword());
+        }
+        if (teacher.getTeacherId() != null) {
+            teacherDocument.append("teacherId", teacher.getTeacherId());
+        }
+        if (teacher.getFirstName() != null) {
+            teacherDocument.append("firstName", teacher.getFirstName());
+        }
+        if (teacher.getLastName() != null) {
+            teacherDocument.append("lastName", teacher.getLastName());
+        }
+        if (teacher.getTeachingLanguages() != null && !teacher.getTeachingLanguages().isEmpty()) {
+            teacherDocument.append("teachingLanguages", teacher.getTeachingLanguages());
+        }
+        if (teacher.getMobileNumber() != null) {
+            teacherDocument.append("mobileNumber", teacher.getMobileNumber());
+        }
+        if (teacher.getWhatsAppNumber() != null) {
+            teacherDocument.append("whatsAppNumber", teacher.getWhatsAppNumber());
+        }
+        if (teacher.getCountry() != null) {
+            teacherDocument.append("country", teacher.getCountry());
+        }
+        if (teacher.getCity() != null) {
+            teacherDocument.append("city", teacher.getCity());
+        }
+        if (teacher.getTeachingLocationAddress() != null) {
+            teacherDocument.append("teachingLocationAddress", teacher.getTeachingLocationAddress());
+        }
+        if (teacher.getWebsiteUrl() != null) {
+            teacherDocument.append("websiteUrl", teacher.getWebsiteUrl());
+        }
+        if (teacher.getProfilePictureUrl() != null) {
+            teacherDocument.append("profilePictureUrl", teacher.getProfilePictureUrl());
+        }
+        if (teacher.getSocialMediaUrls() != null && !teacher.getSocialMediaUrls().isEmpty()) {
+            teacherDocument.append("socialMediaUrls", teacher.getSocialMediaUrls());
+        }
+        if (teacher.getPrograms() != null && !teacher.getPrograms().isEmpty()) {
+            teacherDocument.append("programs", teacher.getPrograms());
+        }
+        
+        return teacherDocument;
+    }
     
 }
 
