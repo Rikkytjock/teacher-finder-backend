@@ -18,12 +18,12 @@ To generate the public and private PEM files required for JWT authentication:
 2. Generate the private key by running the following command:
 
    ```bash
-   openssl genpkey -algorithm RSA -out src/main/resources/jwt/private.pem -pkeyopt rsa_keygen_bits:2048
+   openssl genpkey -algorithm RSA -out src/main/resources/jwt/private_key.pem -pkeyopt rsa_keygen_bits:2048
    ```
 3. Extract the public key from the private key using this command:
 
   ```bash
-  openssl rsa -in src/main/resources/jwt/private.pem -pubout -out src/main/resources/jwt/public.pem
+  openssl rsa -in src/main/resources/jwt/private.pem -pubout -out src/main/resources/jwt/public_key.pem
   ```
 
 These two files (private.pem and public.pem) will be used for signing and verifying JWTs in your application.
