@@ -20,13 +20,26 @@ To generate the public and private PEM files required for JWT authentication:
    ```bash
    openssl genpkey -algorithm RSA -out src/main/resources/jwt/private.pem -pkeyopt rsa_keygen_bits:2048
    ```
-### 3. Extract the public key from the private key using this command: ###
+3. Extract the public key from the private key using this command:
 
   ```bash
   openssl rsa -in src/main/resources/jwt/private.pem -pubout -out src/main/resources/jwt/public.pem
   ```
 
 These two files (private.pem and public.pem) will be used for signing and verifying JWTs in your application.
+
+### 3. Create .env File ###
+
+In the root directory of the project, create a .env file. This file will hold the environment variables for your development environment.
+
+    1. Open a text editor and create a new .env file.
+    2. Add the following lines to it:
+
+    ```bash
+    MONGODB_CONNECTION_STRING_DEV="your-mongodb-connection-string"
+   JWT_ISSUER="your-jwt-issuer"
+   ```
+
 
    
 
