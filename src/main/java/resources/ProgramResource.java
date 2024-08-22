@@ -17,7 +17,7 @@ import jakarta.ws.rs.core.Response;
 import models.Program;
 import services.ProgramService;
 
-@Path("program")
+@Path("/program")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ProgramResource {

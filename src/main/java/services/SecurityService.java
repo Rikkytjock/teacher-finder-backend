@@ -34,10 +34,21 @@ public class SecurityService {
 
     public Response userLogin(@Valid LoginDto loginDto) {
 
-        int checkPasswordAndAccountVerification = checkPassword(loginDto);
+        Document userDocument = new Document();
 
-        if (checkPasswordAndAccountVerification == 0) {
-            String jwt = getJwt(loginDto);
+        userDocument = mongoDBService.getAdminCollection().find(new Document("email", loginDto.getEmail())).first();
+
+        if (userDocument == null) {
+            userDocument = mongoDBService.getTeacherCollection().find(new Document("email", loginDto.getEmail())).first();
+            if (userDocument == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No user found.").build();
+            }
+        }
+
+        int checkPasswordAndAccountVerification = checkPassword(loginDto, userDocument);
+
+        if (checkPasswordAndAccountVerification == 0 || checkPasswordAndAccountVerification == 3) {
+            String jwt = getJwt(userDocument);
             return Response.ok(jwt).build();
         } else if (checkPasswordAndAccountVerification == 1) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect email or password. Please try again.").build();
@@ -48,13 +59,17 @@ public class SecurityService {
         }
     }
 
-    private int checkPassword(@Valid LoginDto loginDto) {
-        Document teacherDocument = mongoDBService.getTeacherCollection().find(new Document("email", loginDto.getEmail())).first();
-        if (teacherDocument == null || !BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString())) {
+    private int checkPassword(@Valid LoginDto loginDto, Document userDocument) {
+
+        if ("admin".equals(userDocument.get("role"))) {
+            return 3;
+        }
+        
+        if (userDocument == null || !BCrypt.checkpw(loginDto.getPassword(), userDocument.get("password").toString())) {
             return 1;
-        } else if (teacherDocument.getBoolean("accountVerified") == false) {
+        } else if (userDocument.getBoolean("accountVerified") == false) {
             return 2;
-        } else if (teacherDocument != null && BCrypt.checkpw(loginDto.getPassword(), teacherDocument.get("password").toString())) {
+        } else if (userDocument != null && BCrypt.checkpw(loginDto.getPassword(), userDocument.get("password").toString())) {
             return 0;
         } else {
             return -1;
@@ -62,12 +77,13 @@ public class SecurityService {
          
     }
 
-    private String getJwt(@Valid LoginDto loginDto) {
+    private String getJwt(Document userDocument) {
+
         Instant expirationTime = Instant.now().plus(Duration.ofDays(1));
     
         return Jwt.issuer(appConfig.jwtIssuer())
-                .subject(loginDto.getEmail())
-                .groups("teacher")
+                .subject(userDocument.get("email").toString())
+                .groups(userDocument.get("role").toString())
                 .expiresAt(expirationTime.getEpochSecond())
                 .sign();
     }

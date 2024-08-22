@@ -27,7 +27,7 @@ public class TeacherService {
     @Inject
     SecurityService securityService;
 
-    public Response findTeacher(String token) {
+    public Response getTeacher(String token) {
 
         JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
 
@@ -57,7 +57,7 @@ public class TeacherService {
             return Response.status(Response.Status.CREATED).entity("Teacher account created! Please allow up to 48 hours for your teacher ID to be validated.").build();
         } catch (MongoWriteException e) {
         if (e.getCode() == 11000) {
-            return Response.status(Response.Status.CONFLICT).entity("Email already exists.").build();
+            return Response.status(Response.Status.CONFLICT).entity("Email already in use.").build();
         }
         throw e;
         }
@@ -136,6 +136,8 @@ public class TeacherService {
         if (teacher.getPrograms() != null && !teacher.getPrograms().isEmpty()) {
             teacherDocument.append("programs", teacher.getPrograms());
         }
+        teacherDocument.append("role", "teacher");
+        teacherDocument.append("accountVerified", teacher.isAccountVerified());
         
         return teacherDocument;
     }
