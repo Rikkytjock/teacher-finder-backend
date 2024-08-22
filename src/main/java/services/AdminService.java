@@ -50,6 +50,11 @@ public class AdminService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Failed to change verification status due to: " + e.getMessage()).build();
         }
     }
+
+    public Response deleteTeacherAccount(String email) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteTeacherAccount'");
+    }
     
 
 
