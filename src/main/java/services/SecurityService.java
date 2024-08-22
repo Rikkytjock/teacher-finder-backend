@@ -88,7 +88,6 @@ public class SecurityService {
                 .sign();
     }
     
-    
     public JwtValidationResult validateJwtAndGetTeacher(String token) {
 
         Response validateJwt = checkJwt(token);
@@ -126,7 +125,6 @@ public class SecurityService {
             if (Instant.now().isAfter(expirationInstant)) { 
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Token is expired").build();
             }
-
 
             JwtResponse jwtResponse = new JwtResponse();
             jwtResponse.setIssuer(issuer);
