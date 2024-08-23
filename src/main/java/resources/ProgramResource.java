@@ -29,7 +29,7 @@ public class ProgramResource {
     @Operation(summary = "Submit a program", description = "A teacher enters required details and submits a new program.")
     @APIResponse(responseCode = "404", description = "Page not found.")
     @APIResponse(responseCode = "200", description = "Program submitted successfully.")
-    @APIResponse(responseCode = "401", description = "You are not authorised to do this.")
+    @APIResponse(responseCode = "401", description = "You are not authorized to do this.")
     @RolesAllowed("teacher")
     @Path("/submit-program")
     public Response submitProgram(@HeaderParam("Authorization") String token, @RequestBody Program program) {
@@ -37,7 +37,7 @@ public class ProgramResource {
     }
 
     @PATCH
-    @Operation(summary = "Edit a program", description = "A teacher enters required details to edit an existing program.")
+    @Operation(summary = "Edit a program", description = "A teacher enters required details to edit an existing program. The whole program body is sent along with the token.")
     @APIResponse(responseCode = "404", description = "Page not found.")
     @APIResponse(responseCode = "200", description = "Program edited successfully.")
     @APIResponse(responseCode = "401", description = "You are not authorised to do this.")

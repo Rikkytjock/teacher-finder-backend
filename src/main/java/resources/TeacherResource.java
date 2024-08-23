@@ -28,7 +28,7 @@ public class TeacherResource {
     TeacherService teacherService;
     
     @POST
-    @Operation(summary = "Create a teacher account", description = "A new user enters all required fields and create a teacher account.")
+    @Operation(summary = "Create a teacher account", description = "A new user enters all required fields and creates a teacher account.")
     @APIResponse(responseCode = "404", description = "Page not found.")
     @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
     @PermitAll
@@ -49,7 +49,7 @@ public class TeacherResource {
     }
 
     @PATCH
-    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account.")
+    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account. The whole program body is sent along with the token.")
     @APIResponse(responseCode = "404", description = "Page not found.")
     @APIResponse(responseCode = "200", description = "Teacher account edited successfully.")
     @RolesAllowed("teacher")

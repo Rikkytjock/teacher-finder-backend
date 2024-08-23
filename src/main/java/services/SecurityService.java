@@ -41,7 +41,7 @@ public class SecurityService {
         if (userDocument == null) {
             userDocument = mongoDBService.getTeacherCollection().find(new Document("email", loginDto.getEmail())).first();
             if (userDocument == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("No user found.").build();
+                return Response.status(Response.Status.NOT_FOUND).entity(loginDto.getEmail() + " is not associated with an account.").build();
             }
         }
 
@@ -51,7 +51,7 @@ public class SecurityService {
             String jwt = getJwt(userDocument);
             return Response.ok(jwt).build();
         } else if (checkPasswordAndAccountVerification == 1) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect email or password. Please try again.").build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect password. Please try again.").build();
         } else if (checkPasswordAndAccountVerification == 2) {
             return Response.status(Response.Status.FORBIDDEN).entity("Your account has not yet been verified. If you created your account more than 48 hours ago please contact support.").build();
         } else {
@@ -61,7 +61,7 @@ public class SecurityService {
 
     private int checkPassword(@Valid LoginDto loginDto, Document userDocument) {
 
-        if ("admin".equals(userDocument.get("role"))) {
+        if ("admin".equals(userDocument.get("role")) && BCrypt.checkpw(loginDto.getPassword(), userDocument.get("password").toString())) {
             return 3;
         }
         
