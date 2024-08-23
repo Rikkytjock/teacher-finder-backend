@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -54,8 +55,8 @@ public class AdminResource {
     })
     @RolesAllowed({"admin"})
     @Path("/get-all-teachers")
-    public Response getAllTeachers() {
-        return adminService.getAllTeachers();
+    public Response getAllTeachers(@HeaderParam("Authorization") String token) {
+        return adminService.getAllTeachers(token);
     }
     
     @PATCH
@@ -86,8 +87,8 @@ public class AdminResource {
     )
     @RolesAllowed({"admin"})
     @Path("/change-verification-status")
-    public Response changeVerificationStatus(@QueryParam("email") String email) {
-        return adminService.changeVerificationStatus(email);
+    public Response changeVerificationStatus(@QueryParam("email") String email, @HeaderParam("Authorization") String token) {
+        return adminService.changeVerificationStatus(email, token);
     }
 
     @DELETE
@@ -123,8 +124,8 @@ public class AdminResource {
     })
     @RolesAllowed({"admin"})
     @Path("/delete-teacher-account")
-    public Response deleteTeacherAccount(@QueryParam("email") String email) {
-        return adminService.deleteTeacherAccount(email);
+    public Response deleteTeacherAccount(@QueryParam("email") String email, @HeaderParam("Authorization") String token) {
+        return adminService.deleteTeacherAccount(email, token);
     }
 
 

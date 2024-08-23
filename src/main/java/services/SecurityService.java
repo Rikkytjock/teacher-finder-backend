@@ -106,34 +106,46 @@ public class SecurityService {
         return new JwtValidationResult(null, teacherDocument);
     }
 
-    private Response checkJwt(String token) {
-
+    public Response checkJwt(String token) {
         try {
-
+            if (token == null || token.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Token is missing or empty").build();
+            }
+    
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-
-            JsonWebToken jwt = jwtParser.parse(token);
-
+    
+            JsonWebToken jwt;
+            try {
+                jwt = jwtParser.parse(token);
+            } catch (ParseException e) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid token format").build();
+            }
+    
             String issuer = jwt.getIssuer();
             String subject = jwt.getSubject();
             Long expirationTime = jwt.getExpirationTime();
             Set<String> roles = jwt.getGroups();
-            
+    
+            if (issuer == null || subject == null || expirationTime == null || roles == null) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity("Token is missing required claims").build();
+            }
+    
             Instant expirationInstant = Instant.ofEpochSecond(expirationTime);
-            if (Instant.now().isAfter(expirationInstant)) { 
+            if (Instant.now().isAfter(expirationInstant)) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Token is expired").build();
             }
-
+    
             JwtResponse jwtResponse = new JwtResponse();
             jwtResponse.setIssuer(issuer);
             jwtResponse.setSubject(subject);
             jwtResponse.setRoles(roles);
-
+    
             return Response.ok(jwtResponse).build();
-        } catch (ParseException e) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid token").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred while processing the token. If the problem persists, please contact support.").build();
         }
     }
+    
 }
