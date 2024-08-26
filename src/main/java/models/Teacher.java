@@ -26,13 +26,14 @@ public class Teacher {
     private List<String> socialMediaUrls;
     private List<Program> programs;
     private boolean accountVerified;
+    private String role;
 
     public Teacher() {}
 
     public Teacher(String id, @Email String email, String password, String teacherId, String firstName, String lastName,
             List<String> teachingLanguages, String mobileNumber, String whatsAppNumber, String country, String city,
             String teachingLocationAddress, String websiteUrl, String profilePictureUrl, List<String> socialMediaUrls, List<Program> programs,
-            boolean accountVerified) {
+            boolean accountVerified, String role) {
 
         this.id = id;
         this.email = email;
@@ -51,6 +52,7 @@ public class Teacher {
         this.socialMediaUrls = socialMediaUrls;
         this.programs = programs;
         this.accountVerified = accountVerified;
+        this.role = role;
     }
     
     public String getFirstName() {
@@ -204,8 +206,8 @@ public class Teacher {
         return accountVerified;
     }
 
-    public void setAccountVerified(boolean accountConfirmed) {
-        this.accountVerified = accountConfirmed;
+    public void setAccountVerified(boolean accountVerified) {
+        this.accountVerified = accountVerified;
     }
 
     public String getTeacherId() {
@@ -214,5 +216,13 @@ public class Teacher {
 
     public void setTeacherId(String teacherId) {
         this.teacherId = teacherId;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

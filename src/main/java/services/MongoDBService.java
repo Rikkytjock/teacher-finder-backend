@@ -19,9 +19,9 @@ public class MongoDBService {
         return database.getCollection("teachers");
     }
 
-    public MongoCollection<Document> getProgramCollection() {
+    public MongoCollection<Document> getAdminCollection() {
         MongoDatabase database = mongoClient.getDatabase("teacherFinder");
-        return database.getCollection("programs");
+        return database.getCollection("admin");
     }
 }
 

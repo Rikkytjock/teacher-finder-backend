@@ -19,28 +19,16 @@ import jakarta.ws.rs.core.Response;
 import models.Teacher;
 import services.TeacherService;
 
-@Path("teacher")
+@Path("/teacher")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TeacherResource {
     
     @Inject
     TeacherService teacherService;
-
-
-    @GET
-    @Operation(summary = "Get a single teacher", description = "After log in the JWT is sent here to retrieve a teachers details.")
-    @APIResponse(responseCode = "401", description = "The teacher does not have permission to do this.")
-    @APIResponse(responseCode = "404", description = "The teacher was not found")
-    @APIResponse(responseCode = "200", description = "Teacher details returned successfully.")
-    @RolesAllowed({"teacher"})
-    @Path("/find-teacher")
-    public Response findTeacher(@HeaderParam("Authorization") String token) {
-        return teacherService.findTeacher(token);
-    }
-
+    
     @POST
-    @Operation(summary = "Create a teacher account", description = "A new user enters all required fields and create a teacher account.")
+    @Operation(summary = "Create a teacher account", description = "A new user enters all required fields and creates a teacher account.")
     @APIResponse(responseCode = "404", description = "Page not found.")
     @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
     @PermitAll
@@ -49,11 +37,22 @@ public class TeacherResource {
         return teacherService.createAccount(teacher);
     }
 
+    @GET
+    @Operation(summary = "Get a single teacher", description = "After log in the JWT is sent here to retrieve a teachers details.")
+    @APIResponse(responseCode = "401", description = "The teacher does not have permission to do this.")
+    @APIResponse(responseCode = "404", description = "The teacher was not found")
+    @APIResponse(responseCode = "200", description = "Teacher details returned successfully.")
+    @RolesAllowed({"teacher"})
+    @Path("/get-teacher")
+    public Response getTeacher(@HeaderParam("Authorization") String token) {
+        return teacherService.getTeacher(token);
+    }
+
     @PATCH
-    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account.")
+    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account. The whole program body is sent along with the token.")
     @APIResponse(responseCode = "404", description = "Page not found.")
-    @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
-    @PermitAll
+    @APIResponse(responseCode = "200", description = "Teacher account edited successfully.")
+    @RolesAllowed("teacher")
     @Path("/edit-account")
     public Response editAccount(@HeaderParam("Authorization") String token, @RequestBody Teacher teacher) {
         return teacherService.editAccount(token, teacher);

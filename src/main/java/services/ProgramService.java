@@ -69,9 +69,40 @@ public class ProgramService {
             .append("imageUrl", program.getImageUrl());
     }
 
-    public Response editProgram(String token, Program program) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'editProgram'");
+    public Response editProgram(String token, Program updatedProgram) {
+
+        JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
+
+        if (result.hasError()) {
+            return result.getErrorResponse(); 
+        }
+
+        Document teacherDocument = result.getTeacherDocument();
+        if (teacherDocument != null) {
+            @SuppressWarnings("unchecked")
+            List<Document> programs = (List<Document>) teacherDocument.get("programs");
+            boolean programFound = false;
+            for (int i = 0; i < programs.size(); i++) {
+                Document program = programs.get(i);
+                if (updatedProgram.getProgramId().equals(program.getString("programId"))) {
+                    programs.set(i, toDocument(updatedProgram));
+                    programFound = true;
+                    break;
+                }
+            }
+
+            if (!programFound) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Program not found").build();
+            }
+
+            mongoDBService.getTeacherCollection().updateOne(
+                new Document("email", teacherDocument.getString("email")),
+                new Document("$set", new Document("programs", programs))
+            );
+            return Response.ok().entity("Program edited succesfully").build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("No account found.").build();
+        }
     }
     
 }
