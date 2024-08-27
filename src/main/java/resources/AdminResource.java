@@ -2,8 +2,11 @@ package resources;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -17,6 +20,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import services.AdminService;
+import models.Teacher;
 
 @Path("/admin")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -34,23 +38,31 @@ public class AdminResource {
     @APIResponses({
         @APIResponse(
             responseCode = "200",
-            description = "Successful retrieval of the teacher list. The response body contains an array of teacher objects."
+            description = "Successful retrieval of the teacher list. The response body contains an array of teacher objects.",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = Teacher.class, type = SchemaType.ARRAY)
+            )
         ),
         @APIResponse(
             responseCode = "401",
-            description = "User is not authenticated or the authentication token is missing or invalid."
+            description = "Unauthorized. User is not authenticated or the authentication token is missing or invalid.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "403",
-            description = "Forbidden. The user does not have the necessary permissions to access this resource."
+            description = "Forbidden. The user does not have the necessary permissions to access this resource.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "404",
-            description = "Not found. No teachers were found in the database. This may occur if the database is empty."
+            description = "Not found. No teachers were found in the database. This may occur if the database is empty.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "500",
-            description = "Internal server error. An unexpected error occurred while processing the request. Please try again later or contact support."
+            description = "Internal server error. An unexpected error occurred while processing the request.",
+            content = @Content(mediaType = "application/json")
         )
     })
     @RolesAllowed({"admin"})
@@ -64,27 +76,36 @@ public class AdminResource {
         summary = "Change permission status for a teacher", 
         description = "Allows an admin to toggle the 'accountVerified' status of a teacher."
     )
-    @APIResponse(
-        responseCode = "200", 
-        description = "Teacher verification status changed successfully.",
-        content = @Content(mediaType = "application/json")
-    )
-    @APIResponse(
-        responseCode = "401", 
-        description = "User is not authenticated or the authentication token is missing or invalid."
-    )
-    @APIResponse(
-        responseCode = "403", 
-        description = "Forbidden. User does not have the necessary permissions."
-    )
-    @APIResponse(
-        responseCode = "404", 
-        description = "Not Found. Teacher with the provided email was not found in the database."
-    )
-    @APIResponse(
-        responseCode = "500", 
-        description = "Internal server error. An unexpected error occurred while processing the request. Please try again later or contact support."
-    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200", 
+            description = "Teacher verification status changed successfully.",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = Teacher.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "401", 
+            description = "Unauthorized. User is not authenticated or the authentication token is missing or invalid.",
+            content = @Content(mediaType = "application/json")
+        ),
+        @APIResponse(
+            responseCode = "403", 
+            description = "Forbidden. The user does not have the necessary permissions to perform this operation.",
+            content = @Content(mediaType = "application/json")
+        ),
+        @APIResponse(
+            responseCode = "404", 
+            description = "Not Found. Teacher with the provided email was not found in the database.",
+            content = @Content(mediaType = "application/json")
+        ),
+        @APIResponse(
+            responseCode = "500", 
+            description = "Internal server error. An unexpected error occurred while processing the request.",
+            content = @Content(mediaType = "application/json")
+        )
+    })
     @RolesAllowed({"admin"})
     @Path("/change-verification-status")
     public Response changeVerificationStatus(@QueryParam("email") String email, @HeaderParam("Authorization") String token) {
@@ -99,27 +120,33 @@ public class AdminResource {
     @APIResponses({
         @APIResponse(
             responseCode = "200",
-            description = "The teacher account was successfully deleted from the database."
+            description = "The teacher account was successfully deleted from the database.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "400",
-            description = "Bad request. The provided email is invalid or missing."
+            description = "Bad request. The provided email is invalid or missing.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "401",
-            description = "Unauthorized. User is not authenticated or the authentication token is missing or invalid."
+            description = "Unauthorized. User is not authenticated or the authentication token is missing or invalid.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "403",
-            description = "Forbidden. The user does not have the necessary permissions to perform this operation."
+            description = "Forbidden. The user does not have the necessary permissions to perform this operation.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "404",
-            description = "Not found. The teacher with the provided email could not be found in the database."
+            description = "Not found. The teacher with the provided email could not be found in the database.",
+            content = @Content(mediaType = "application/json")
         ),
         @APIResponse(
             responseCode = "500",
-            description = "Internal server error. An unexpected error occurred while processing the request. Please try again later or contact support."
+            description = "Internal server error. An unexpected error occurred while processing the request.",
+            content = @Content(mediaType = "application/json")
         )
     })
     @RolesAllowed({"admin"})
@@ -127,9 +154,4 @@ public class AdminResource {
     public Response deleteTeacherAccount(@QueryParam("email") String email, @HeaderParam("Authorization") String token) {
         return adminService.deleteTeacherAccount(email, token);
     }
-
-
-
-    
-
 }

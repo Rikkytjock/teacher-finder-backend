@@ -1,8 +1,11 @@
 package resources;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -23,40 +26,126 @@ import services.TeacherService;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TeacherResource {
-    
+
     @Inject
     TeacherService teacherService;
-    
+
     @POST
-    @Operation(summary = "Create a teacher account", description = "A new user enters all required fields and creates a teacher account.")
-    @APIResponse(responseCode = "404", description = "Page not found.")
-    @APIResponse(responseCode = "200", description = "Teacher account created successfully.")
-    @PermitAll
     @Path("/create-account")
+    @PermitAll
+    @Operation(
+        summary = "Create a teacher account",
+        description = "Creates a new teacher account with the provided details."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "201",
+            description = "Teacher account created successfully.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "409",
+            description = "Conflict: Email already in use.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error: Could not create account.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        )
+    })
     public Response createAccount(@RequestBody Teacher teacher) {
         return teacherService.createAccount(teacher);
     }
 
     @GET
-    @Operation(summary = "Get a single teacher", description = "After log in the JWT is sent here to retrieve a teachers details.")
-    @APIResponse(responseCode = "401", description = "The teacher does not have permission to do this.")
-    @APIResponse(responseCode = "404", description = "The teacher was not found")
-    @APIResponse(responseCode = "200", description = "Teacher details returned successfully.")
-    @RolesAllowed({"teacher"})
     @Path("/get-teacher")
+    @RolesAllowed("teacher")
+    @Operation(
+        summary = "Get a single teacher",
+        description = "Retrieves a teacher's details based on the provided JWT token."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Teacher details retrieved successfully.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = Teacher.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized: Invalid or missing JWT token.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "404",
+            description = "Teacher not found.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        )
+    })
     public Response getTeacher(@HeaderParam("Authorization") String token) {
         return teacherService.getTeacher(token);
     }
 
     @PATCH
-    @Operation(summary = "Edit a teacher account", description = "A teacher enters all required fields and edits an existing account. The whole program body is sent along with the token.")
-    @APIResponse(responseCode = "404", description = "Page not found.")
-    @APIResponse(responseCode = "200", description = "Teacher account edited successfully.")
-    @RolesAllowed("teacher")
     @Path("/edit-account")
+    @RolesAllowed("teacher")
+    @Operation(
+        summary = "Edit a teacher account",
+        description = "Updates the details of an existing teacher account."
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Teacher account updated successfully.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized: Invalid or missing JWT token.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "404",
+            description = "Teacher not found.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error: Could not update account.",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = String.class)
+            )
+        )
+    })
     public Response editAccount(@HeaderParam("Authorization") String token, @RequestBody Teacher teacher) {
         return teacherService.editAccount(token, teacher);
     }
-
 }
-

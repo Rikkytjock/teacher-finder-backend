@@ -6,5 +6,9 @@ import io.smallrye.config.ConfigMapping;
 public interface AppConfig {
 
     String jwtIssuer();
+
+    String email();
+
+    String emailPassword();
     
 }
