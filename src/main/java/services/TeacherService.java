@@ -4,12 +4,15 @@ import org.bson.Document;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.mongodb.MongoWriteException;
+
+import config.AppConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import models.JwtValidationResult;
 import models.Teacher;
+import utilities.EmailUtility;
 
 @Transactional(Transactional.TxType.SUPPORTS)
 @ApplicationScoped
@@ -21,6 +24,9 @@ public class TeacherService {
 
     @Inject
     private SecurityService securityService;
+
+    @Inject
+    private AppConfig appConfig;
 
     public Response getTeacher(String token) {
         JwtValidationResult result = securityService.validateJwtAndGetTeacher(token);
@@ -47,6 +53,8 @@ public class TeacherService {
             Document teacherDocument = toDocument(teacher);
             mongoDBService.getTeacherCollection().insertOne(teacherDocument);
 
+            sendVerificationRequestEmail(teacher);
+
             return Response.status(Response.Status.CREATED)
                            .entity("Teacher account created! Please allow up to 48 hours for your teacher ID to be validated.")
                            .build();
@@ -55,6 +63,24 @@ public class TeacherService {
                 return Response.status(Response.Status.CONFLICT).entity("Email already in use.").build();
             }
             throw e;
+        }
+    }
+
+    private void sendVerificationRequestEmail(Teacher teacher) {
+        EmailUtility emailUtility = new EmailUtility(
+            appConfig.emailUsername(),
+            appConfig.emailPassword(),
+            appConfig.emailHost(),
+            appConfig.emailPort()
+            );
+
+        try {
+            String recipient = "d_hankin@outlook.com";
+            String subject = "Teacher account verification requested!";
+            String body = "Teacher account created using email: " + teacher.getEmail() + ".\n\nTeacher ID: " + teacher.getTeacherId() + "\n\nVerify teacher ID and login as admin to verify the teacher account.";
+            emailUtility.sendEmail(recipient, subject, body);
+        } catch (Exception e) {
+            System.err.println("Failed to send verification email: " + e.getMessage());
         }
     }
 
